@@ -1,25 +1,21 @@
 import requests 
-import re
-from fileSystemUtils import createCacheForTest
- 
-title = '世界の果てまでイッテQ!'
+import re 
+
+# title = '世界の果てまでイッテQ!'
+title = '徹子の部屋'
 
 # api-endpoint 
 URL = 'https://ja.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content&format=xmlfm&titles=' + title + '&rvsection=0&format=json'
 
-response = requests.get(url = URL).json()
+response = requests.get(url = URL).json()['query']['pages']
 
-# 341000が何を意図する?
-infoBox = response['query']['pages']['341000']['revisions'][0]['*']
-
-infoBoxArray = infoBox.splitlines()
-# print(infoBox)
-# print(infoBoxArray)
+# 341000などの数字は何を意図する?
+# jsonの最初のkeyのvalueを取得
+rawTalentData = response[list(response.keys())[0]]['revisions'][0]['*'].splitlines()
 
 talentList = ''
-# フラグ
 isTalentLine = False
-for line in infoBoxArray:
+for line in rawTalentData:
   if '|出演者=' in line:
     isTalentLine = True
   elif '|' in line:
@@ -28,11 +24,6 @@ for line in infoBoxArray:
   if isTalentLine == True:
     talentList = line
 
-# print(talentList)
-
-# 制作途中
-prettifiedTalentList = re.findall(r"[^[]*\[([^]]*)\]", talentList)
-
-print(prettifiedTalentList)
-
-# extractedTalentList
+# 枝葉を取り除く
+decentTalentList = re.findall(r"\[(\w+)\]", talentList)
+print(decentTalentList)
